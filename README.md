@@ -1,67 +1,107 @@
-# Personal agent setup
-
-Use Pi to make changes and Codex to review them. Run both in a tmux session for the current Git worktree, from your editor's terminal or a standalone terminal.
-
-## Why this workflow
-
-A separate review session gives the reviewer the original request and the diff without the implementation conversation. Pass along the command you ran and what it showed. For example, if a fix should make a preference survive a reload, save the preference, reload the page, and check its value. The reviewer can repeat that check and look for cases it misses.
-
-## Principles and sources
-
-- Keep everyday conventions in one set of shared rules. Put project-specific setup and test commands in the project. Turn repeated manual checks into commands an agent can run. [Mitchell Hashimoto on repeatable checks](https://mitchellh.com/writing/my-ai-adoption-journey#step-5-engineer-the-harness)
-- Write skills for tasks with a distinct procedure. Keep imported instructions at a recorded revision and document local changes. [Matt Pocock's engineering skills](https://github.com/mattpocock/skills) · [Source pins](skills/sources.tsv)
-- Give command-line tools their own usage help. Prefer structured output when an agent needs to read a result. [Kun Chen's AXI](https://github.com/kunchenguid/axi)
+A collection of skills, coding rules, and terminal workflows for coding agents. Use the skills and rules independently, or install the macOS workspace to run Pi and Codex in tmux.
 
 ## What you get
 
-- `agent-tmux` opens Pi, a Codex review tab with a read-only shell, and a Git shell. Run it again to return to the same worktree session. The `+` menu opens another chat or shell.
-- A catalog of pinned skills and example rules. Install the ones you want to use. [Rules](rules/) · [Skills](skills/)
-- The installer pins Pi and the browser tools used to reproduce web issues. It also installs Herdr for use in a separate terminal. [Tool lockfile](tools/package-lock.json)
+- **Skills for recurring tasks.** Pick a procedure for work such as test-first development, browser checks, or code review. The catalog records upstream revisions for imported skills. [Skills](skills/) · [Source pins](skills/sources.tsv)
+- **Coding rules with worked examples.** See how to document an invariant, decide where to extract a helper, and test the behavior a caller can observe. The rules include Python conventions. [Rules](rules/)
+- **A workspace you can reopen.** Each Git worktree gets a tmux session with Pi, Codex, and a Git shell. The installer includes browser tools for running and inspecting checks.
 
-## Install
+Inspired by [Mitchell Hashimoto on repeatable checks](https://mitchellh.com/writing/my-ai-adoption-journey#step-5-engineer-the-harness), [Matt Pocock's engineering skills](https://github.com/mattpocock/skills), and [Kun Chen's AXI conventions](https://github.com/kunchenguid/axi).
 
-The bundled tool installer targets Apple Silicon macOS. You need Node.js 24 or newer with npm, Python 3.9 or newer, Git, curl, tmux 3.5 or newer, and the Codex CLI. [Install Codex](https://developers.openai.com/codex/cli/)
+## Installation
+
+Clone the repository and run the install commands below from its root.
 
 ```sh
 git clone https://github.com/khyyle/agent-setup.git
 cd agent-setup
-./scripts/install-tools.sh
-python3 scripts/link.py
-python3 scripts/link.py --check
 ```
 
-Add `$HOME/.local/bin` to your shell's `PATH`. Use `python3 scripts/link.py --bin-dir DIR` if you keep executables elsewhere. Run `pi auth login openai` and `codex login` to sign in, then run `agent-tmux` from a project.
+### Use the skills and rules
 
-### Install skills and rules
+The copy installer requires Python 3.9 or newer on macOS or Linux. Pick skills by name and install the rules separately if you want them.
 
 ```sh
 python3 scripts/install-config.py --skills ponytail ponytail-review
 python3 scripts/install-config.py --rules
+```
+
+To install a skill for one project, pass its path. For example, add `search-first` to a project where you regularly evaluate dependencies.
+
+```sh
 python3 scripts/install-config.py --project /path/to/project --skills search-first
 ```
 
-Pi, Codex, and Cursor discover user skills from `~/.agents/skills` and project skills from `.agents/skills` in the project. The installer copies files to those directories. `--all-skills` copies the suggested user collection. [Project-only list](skills/project-only.txt)
+Use `--all-skills` for the suggested user collection. It skips the entries in `skills/project-only.txt`, which are intended for named installs in individual projects. A repeat install keeps existing copies. Add `--refresh` to replace selected copies with the checkout version and save a backup. Run `python3 scripts/install-config.py --help` for custom destinations.
 
-For a custom profile, pass `--skills-dir DIR` with your skill selection or use `--rules-file FILE` to install the rule template at an exact path. Choose a location your client already reads. `--rules` copies the rules into the default Pi, Codex, and Cursor locations. Either rules option installs the worked examples under `~/.local/share/agent-setup/rules`.
-
-A repeat install keeps existing copies. Use `--refresh` to replace selected copies from the checkout. The installer backs up anything it replaces.
-
-The skills also work with standard catalog installers. To copy one from this checkout into a Codex user profile, run the command below from the repo root. [Vercel skills CLI](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add)
+You can also install individual skills from this checkout using the standard skills CLI. [Vercel skills CLI](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add)
 
 ```sh
 npx skills add . --copy --global --agent codex --skill ponytail
 ```
 
-### Optional setup
+### Set up the macOS workspace
 
-- Install Encore with `./scripts/install-extras.sh --encore` to add a `music` tab on launch. Use `agent-tmux --no-music-tab` to skip opening the tab. The status bar reads the playing track from Music.app when macOS grants Automation access. [Encore](https://github.com/bogdankim/encore)
+#### Prerequisites
 
-Install pinned Pi extensions:
+- An Apple Silicon Mac.
+- Node.js 24 or newer with npm, and Python 3.9 or newer.
+- Git, curl, and tmux 3.5 or newer.
+- The Codex CLI. [Install Codex](https://developers.openai.com/codex/cli/)
+
+#### Install the tools
+
+```sh
+./scripts/install-tools.sh
+python3 scripts/link.py
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+The tool installer downloads the pinned Pi and browser tools, including Chromium for Playwright. The linker makes the commands available in `~/.local/bin`. Add that directory to your shell configuration to keep it on your PATH in new terminals.
+
+## Usage
+
+Sign in to Pi and Codex on first use.
+
+```sh
+pi auth login openai
+codex login
+```
+
+```text
+agent-tmux [directory] [--detach] [--encore | --no-music-tab]
+```
+
+Run `agent-tmux` from a fresh terminal to open or reattach the workspace for the current directory. Pass a directory to open another project. Use `--detach` to prepare the session without attaching.
+
+| Tab | Use |
+| --- | --- |
+| `pi` | Pi session. |
+| `review` | Codex session with read-only shell access. |
+| `git` | Shell that opens at the worktree root and shows Git status. |
+
+Use the `+` menu to open another agent or shell. Press `Ctrl-b d` to detach. Run `agent-tmux` from the project again to return to the same session.
+
+## Optional tools
+
+### Pi extensions
+
+Run the extras script after installing the tools. It installs the Pi extensions below into your user profile. Have Homebrew available if the script needs to install Chafa or FFmpeg.
 
 ```sh
 ./scripts/install-extras.sh
 ```
 
-Restart Pi or run `/reload`. Use `/voice-settings` to select a local transcription model, `/agents` to manage subagents, `/images status` to check screenshot support, and `/md` to export a conversation. Ask Pi to show a screenshot by path.
+Restart Pi or run `/reload`.
 
-Use `/skills-toggle` to choose which skills Pi can load. The manual-only setting edits the installed `SKILL.md`. [Pi Skill Toggle](https://github.com/Whamp/pi-skill-toggle)
+| What you want | Where to start |
+| --- | --- |
+| Dictate a prompt locally | Open `/voice-settings` and select a speech model. Then press `Ctrl+Space` to dictate. macOS may ask for microphone access. |
+| Delegate a task | Open `/agents` to see the available subagents. |
+| Preview a screenshot | Ask Pi to show the image by path. Use `/images status` to check the terminal renderer. |
+| Save a conversation as Markdown | Run `/md`. |
+| Choose when skills are available | Open `/skills-toggle`. Manual-only mode updates the installed skill copy. |
+
+### Apple Music in tmux
+
+Run `./scripts/install-extras.sh --encore` to include Encore in the extras install. The workspace opens a `music` tab when Encore is installed. The tmux status bar can show the track playing in Music.app when macOS grants Automation access. Use `agent-tmux --no-music-tab` when you want to skip opening the player. [Encore](https://github.com/bogdankim/encore)
