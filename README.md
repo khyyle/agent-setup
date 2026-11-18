@@ -15,11 +15,13 @@ Open a project in Cursor or VS Code and work as usual. In the IDE terminal, run 
 - For independent chats, run `pi --name implement` and `pi --name investigate` in separate IDE terminals, or in two Herdr tabs. `pi -r` reopens the session picker. Use separate Git worktrees if both chats will edit independently.
 - Use [ARIS](skills/aris/SKILL.md) for claim-driven planning or a study-local research wiki. Use [unslop](skills/unslop/SKILL.md) for an explicitly requested prose edit. [no-mistakes](skills/no-mistakes/SKILL.md) is an explicitly invoked Git gate with its own CLI and repository enrollment.
 
-## Rules and original examples
+## Rules and examples
 
-The shared default lives in [rules/AGENTS.md](rules/AGENTS.md). Codex and Pi link to it as `AGENTS.md`. Cursor's `~/.cursor/rules/agent-defaults.mdc` points to the same file. The [original personal rules](rules/personal/) retain the detailed [Python examples](rules/personal/python-code-quality.mdc) and [general coding examples](rules/personal/general-code-quality.mdc). The [project rule copies](rules/imported/) retain their original contents for comparison, including their project-specific settings. The global installer reads only the shared default when exposing a Cursor rule.
+Edit [rules/AGENTS.md](rules/AGENTS.md) for everyday behavior, including naming, commenting, control flow, helper boundaries and testing. It points directly to the [cross-language examples](rules/code-quality.md) and [Python conventions](rules/python.md). Codex and Pi link to the shared file as `AGENTS.md`. Cursor's `~/.cursor/rules/agent-defaults.mdc` links to the same content.
 
-Use the testing guidance in the shared default for everyday changes. The [ECC TDD workflow](skills/tdd-workflow/SKILL.md) is the original import, including its examples and 80% coverage target. Invoke the full workflow for an explicit test-first assignment. [Coding standards](skills/coding-standards/SKILL.md) and [Python patterns](skills/python-patterns/SKILL.md) are the original ECC imports as well.
+Architecture, design tokens, release procedures and project-specific commands belong in the owning checkout. The original personal and project rule snapshots are available locally in Git at `208df5f`, for example with `git show 208df5f:rules/personal/general-code-quality.mdc`.
+
+Use the testing guidance in the shared default for everyday changes. The [ECC TDD workflow](skills/tdd-workflow/SKILL.md) is the original import, including its examples and 80% coverage target. Invoke the full workflow for an explicit test-first assignment. The [coding standards skill](skills/coding-standards/SKILL.md) retains its ECC examples with local guidance on comments and extraction. [Python patterns](skills/python-patterns/SKILL.md) is the original ECC import.
 
 ## Maintain the collection
 

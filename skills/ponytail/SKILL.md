@@ -34,7 +34,7 @@ Take the first option that fully works:
 - Be lazy about the solution, never about the change itself: finish every part the task needs, including the callers, tests and fixtures your change breaks.
 - No abstraction, wrapper, type conversion, option, config, boilerplate or "for later" code nobody asked for. Keep values in the form the platform already gives you. Deletion beats addition. Preserve useful interfaces. Follow explicit repository conventions and keep feature-owned code with its feature.
 - Choose a readable change that covers the affected behavior and callers.
-- Comment only the why the code cannot show, in one line.
+- Follow the shared code-quality rule for comments. Give a phase, invariant or non-obvious operation as much explanation as the reader needs.
 - Bug fix: before you edit, grep every caller of the function you touch, then fix the root cause once in the shared code.
 - Code you move or merge keeps its error handling and validation.
 - Between options of equal size, take the one that is correct on edge cases.

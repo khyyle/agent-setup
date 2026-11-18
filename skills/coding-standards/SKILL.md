@@ -367,7 +367,7 @@ types/market.types.ts         # camelCase with .types suffix
 ### When to Comment
 
 ```typescript
-// PASS: GOOD: Explain WHY, not WHAT
+// Explain the operational reason for the delay.
 // Use exponential backoff to avoid overwhelming the API during outages
 const delay = Math.min(1000 * Math.pow(2, retryCount), 30000)
 
@@ -492,20 +492,9 @@ test('test search', () => { })
 
 Watch for these anti-patterns:
 
-### 1. Long Functions
-```typescript
-// FAIL: BAD: Function > 50 lines
-function processMarketData() {
-  // 100 lines of code
-}
+### 1. Unclear function boundaries
 
-// PASS: GOOD: Split into smaller functions
-function processMarketData() {
-  const validated = validateData()
-  const transformed = transformData(validated)
-  return saveData(transformed)
-}
-```
+Extract an operation when its name and contract make the caller easier to read. A long calculation may be clearest in one place when its steps maintain a shared invariant. Keep validation, fallback decisions and visible side effects easy to locate.
 
 ### 2. Deep Nesting
 ```typescript

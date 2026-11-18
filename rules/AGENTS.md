@@ -20,21 +20,18 @@ Start with a local definition. Extract shared logic when consumers implement the
 ## Code quality
 
 - Choose the smallest readable implementation that covers supported inputs, callers and existing data. Follow a change through its public entry points. Remove code the change makes obsolete.
-- Name values for their meaning. Use verbs for operations, predicates for yes/no questions and units when a number could be misread. Name thresholds and policy choices where readers need their meaning.
-- Keep dependencies explicit, state close to its owner and module dependencies acyclic. Extract a function when it gives a decision or operation a useful name. Split modules when their responsibilities change independently.
+- Name values for the distinctions a reader needs. A name can distinguish requested from committed state, standard deviation from variance, or bytes from samples. Use verbs for operations and predicates for yes/no questions. Familiar mathematical symbols are useful near the formula that defines them. Use the language's types, primitives and idioms to make valid states and operations clear.
+- Keep the main path readable in execution order. Make the conditions for stopping, falling back or committing a change visible beside their consequences. Use guard clauses, pattern matching, a pipeline or an ordinary loop where it makes that path easier to follow.
+- Extract a helper for a coherent operation with a clear contract. A private helper can earn its place with one caller when its name lets the reader follow the larger operation. Keep steps together when they share evolving state and the reader must jump between functions to reconstruct their order. Keep helpers private to their owner until a real cross-module contract justifies sharing them.
 - Validate at trust boundaries. Catch errors where the caller can recover or add actionable context. Log once where the failure is handled. For writes that can fail partway or repeat, preserve consistency across retries and concurrent callers.
-- Comments explain invariants, units, decisions and external constraints a reader cannot infer. Document public contracts. Let version control hold edit history.
+- Orient readers at module boundaries. Use the language's native module docstring or file comment when purpose, scope or assumptions need an introduction. Above a section, explain what that phase accomplishes and why it sits there. Beside a surprising operation, explain the offset, unit conversion or invariant that makes it correct. A block comment can take the space needed for a derivation, example or tradeoff, including inside a private function. Omit narration that merely translates the next line and keep edit history in Git.
 - In UI work, reuse the project's components and tokens. Handle the loading, empty, error and keyboard interaction states relevant to the change. For unattended scripts, scope file operations and staging explicitly, preserve failure exit codes and keep credentials out of output.
 
-For the original naming and comment examples, see `~/projects/agent-setup/rules/personal/general-code-quality.mdc`.
+For worked examples of naming, comments and helper boundaries, see `~/projects/agent-setup/rules/code-quality.md`.
 
 ## Python
 
-Type function signatures using the project's supported Python version. Prefer built-in generics where supported and familiar domain terms over type-suffixed names. Use specific exceptions and the project logger for diagnostics. A command can write its result to stdout.
-
-Use NumPy-style docstrings for nontrivial functions, methods and classes. Use underlined sections such as `Parameters`, `Returns` and `Raises` when they help the caller. Describe units, shapes, missingness, timezone assumptions and side effects where they matter. A self-explanatory private helper can rely on its name and signature.
-
-Use the detailed Python conventions and worked docstring and error-handling examples in `~/projects/agent-setup/rules/personal/python-code-quality.mdc` when writing Python.
+Type function signatures and use NumPy-style docstrings for nontrivial interfaces. When writing Python, see `~/projects/agent-setup/rules/python.md` for conventions and a worked example.
 
 ## Verify the behavior
 
