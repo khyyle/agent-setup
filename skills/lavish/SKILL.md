@@ -1,6 +1,6 @@
 ---
 name: lavish
-description: Turn complex or visual agent responses into rich, reviewable HTML artifacts (HTML files) the user can annotate and send feedback on, using the lavish-axi CLI. Use when about to give a plan, comparison, diagram, table, code diff, report, or anything easier to grasp visually than as prose.
+description: Build an HTML artifact with lavish-axi when the user asks to review and annotate a plan, comparison, diagram, prototype, or report in the browser.
 license: MIT
 metadata:
   author: Kun Chen (kunchenguid)
@@ -12,7 +12,6 @@ metadata:
 # Lavish Editor
 
 Lavish Editor opens agent-generated HTML in the browser so a human can annotate it and send feedback back to the agent.
-Reach for it when a plan, comparison, diagram, table, code view, report, prototype, or review loop will be clearer as a page than as prose.
 
 ## Current guidance lives in the CLI
 

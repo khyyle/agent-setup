@@ -1,6 +1,6 @@
 ---
 name: search-first
-description: Search for existing tools, libraries and patterns before writing custom code or adding a dependency.
+description: Research-before-coding workflow. Search for existing tools, libraries, and patterns before writing custom code. Invokes the researcher agent.
 origin: ECC
 ---
 
@@ -24,7 +24,7 @@ Use this skill when:
 │     Define what functionality is needed      │
 │     Identify language/framework constraints  │
 ├─────────────────────────────────────────────┤
-│  2. SEARCH RELEVANT SOURCES                 │
+│  2. PARALLEL SEARCH (researcher agent)      │
 │     ┌──────────┐ ┌──────────┐ ┌──────────┐  │
 │     │  npm /   │ │  MCP /   │ │  GitHub / │  │
 │     │  PyPI    │ │  Skills  │ │  Web      │  │
@@ -63,13 +63,13 @@ Before writing a utility or adding functionality, mentally run through:
 
 0. Does this already exist in the repo? → `rg` through relevant modules/tests first
 1. Is this a common problem? → Search npm/PyPI
-2. Does an installed tool or integration already provide this capability? Check the current client's tools.
-3. Is there a skill for this? Check the active skill catalog.
+2. Is there an MCP for this? → Check `~/.claude/settings.json` and search
+3. Is there a skill for this? → Check `~/.claude/skills/`
 4. Is there a GitHub implementation/template? → Run GitHub code search for maintained OSS before writing net-new code
 
-### Full Mode
+### Full Mode (agent)
 
-For a larger decision, conduct the following comparison in the current session. The task template also works in clients where the user has requested a separate researcher:
+For non-trivial functionality, launch the researcher agent:
 
 ```
 Task(subagent_type="general-purpose", prompt="
@@ -104,7 +104,7 @@ Task(subagent_type="general-purpose", prompt="
 - Markdown processing → `remark`, `unified`, `markdown-it`
 - Image optimization → `sharp`, `imagemin`
 
-## Optional integrations for clients with these agents or skills
+## Integration Points
 
 ### With planner agent
 The planner should invoke researcher before Phase 1 (Architecture Review):

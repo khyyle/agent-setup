@@ -6,9 +6,9 @@ import hashlib
 import os
 from pathlib import Path
 import re
+import shlex
 import shutil
 import subprocess
-import sys
 
 SERVER = "agent-setup"
 CONFIG = Path(__file__).resolve().with_name("tmux.conf")
@@ -19,7 +19,7 @@ SHELL_AFTER = '; exec "$SHELL" -l'
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", nargs="?", type=Path, default=Path.cwd())
-    parser.add_argument("--music", action="store_true", help="add Apple Music controls and now playing")
+    parser.add_argument("--encore", action="store_true", help="add an Encore tab for Apple Music")
     parser.add_argument("--detach", action="store_true", help="prepare the workspace without attaching")
     args = parser.parse_args()
     directory = args.directory.expanduser().resolve()
@@ -27,8 +27,9 @@ def main() -> None:
         parser.error(f"Directory does not exist: {directory}")
     if not shutil.which("tmux"):
         parser.error("Install tmux and run this command again.")
-    if args.music and sys.platform != "darwin":
-        parser.error("The Apple Music integration requires macOS.")
+    encore = shutil.which("encore") if args.encore else None
+    if args.encore and encore is None:
+        parser.error("Install Encore with brew install bogdankim/tap/encore and run this command again.")
     inside = os.environ.get("TMUX", "").rsplit(",", 2)[0]
     if inside and Path(inside).name != SERVER and not args.detach:
         parser.error("Open agent-tmux in a fresh IDE terminal, or use --detach to prepare it here.")
@@ -65,12 +66,9 @@ def main() -> None:
     subprocess.run(TMUX + ["new-window", "-Sd", "-t", session + ":", "-c", cwd,
                            "-n", "git", git_start + SHELL_AFTER], check=True)
 
-    if args.music:
-        command = "agent-music info; printf '\\nControls: agent-music toggle | next | previous\\n'" + SHELL_AFTER
-        status = "#[fg=#a5afd1]#(agent-music status)  #[fg=#878eaa]%H:%M "
+    if encore is not None:
         subprocess.run(TMUX + ["new-window", "-Sd", "-t", session + ":", "-c", cwd,
-                               "-n", "music", command, ";", "set-option", "-t", target + ":",
-                               "status-right", status], check=True)
+                               "-n", "encore", shlex.quote(os.path.abspath(encore))], check=True)
 
     if args.detach:
         print(f"Prepared {session} in {directory}")

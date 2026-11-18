@@ -11,9 +11,7 @@ metadata:
 
 # chrome-devtools-axi
 
-Use the locally installed Chrome DevTools CLI when the question depends on browser diagnostics.
-
-Use Playwright for a repeatable interaction proof. Use Chrome DevTools when the browser console, network trace, or performance data will explain the result.
+Use the installed Chrome DevTools CLI when the browser console, network trace, or rendering and performance data will explain the result.
 
 ## Current guidance lives in the CLI
 

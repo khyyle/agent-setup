@@ -10,14 +10,18 @@ from collections.abc import Iterator
 
 ROOT = Path(__file__).resolve().parents[1]
 HOME = Path.home()
-LEGACY_CODEX = {"humanizer", "ponytail", "ponytail-review", "research-loop"}
+LEGACY_CODEX = {"humanizer", "ponytail", "ponytail-review"}
 BINARIES = ("pi", "toon", "gh-axi", "chrome-devtools-axi", "lavish-axi", "quota-axi", "playwright-axi")
 PI_DEFAULTS = {"defaultProvider": "openai", "defaultModel": "gpt-6.2-astra", "enabledModels": ["openai/*"]}
 
 
 def destinations() -> Iterator[tuple[Path, Path]]:
-    for guide in sorted((ROOT / "skills").glob("*/SKILL.md")):
-        skill = guide.parent
+    project_only = set((ROOT / "skills/project-only.txt").read_text().split())
+    available = {guide.parent.name for guide in (ROOT / "skills").glob("*/SKILL.md")}
+    if project_only - available:
+        raise SystemExit(f"Unknown names in skills/project-only.txt: {sorted(project_only - available)}")
+    for name in sorted(available - project_only):
+        skill = ROOT / "skills" / name
         for client in (".agents", ".cursor"):
             yield HOME / client / "skills" / skill.name, skill
         if skill.name in LEGACY_CODEX:
@@ -30,8 +34,7 @@ def destinations() -> Iterator[tuple[Path, Path]]:
     yield HOME / ".local/bin/herdr", ROOT / "tools/bin/herdr"
     yield HOME / ".local/bin/no-mistakes", ROOT / "tools/bin/no-mistakes"
     yield HOME / ".local/bin/exa-axi", ROOT / "tools/exa-axi.mjs"
-    for name in ("agent-tmux", "agent-music"):
-        yield HOME / ".local/bin" / name, ROOT / "terminal" / name
+    yield HOME / ".local/bin/agent-tmux", ROOT / "terminal/agent-tmux"
 
 
 def managed_entry(target: Path) -> bool:
@@ -47,12 +50,61 @@ def managed_entry(target: Path) -> bool:
     return first == ROOT / "skills" / target.name
 
 
+def link_project_skills(project: Path, names: list[str], check: bool) -> None:
+    """Add just the named skills to this project and preserve project-owned entries."""
+    project = project.expanduser().resolve()
+    if not project.is_dir() or project == HOME.resolve():
+        raise SystemExit("Choose an existing project directory distinct from your home directory.")
+    available = {guide.parent.name: guide.parent for guide in (ROOT / "skills").glob("*/SKILL.md")}
+    unknown = set(names) - available.keys()
+    if unknown:
+        raise SystemExit(f"Unknown skill: {', '.join(sorted(unknown))}")
+
+    names = list(dict.fromkeys(names))
+    pending = []
+    for client in (".agents", ".cursor"):
+        directory = project / client / "skills"
+        if not directory.resolve().is_relative_to(project):
+            raise SystemExit(f"Project skill directory resolves outside this project: {directory}")
+        for parent in (directory.parent, directory):
+            if (parent.exists() or parent.is_symlink()) and not parent.is_dir():
+                raise SystemExit(f"Expected a project skill directory at {parent}")
+        for name in names:
+            source = available[name]
+            target = directory / name
+            if target.is_symlink() and target.resolve() == source.resolve():
+                continue
+            if target.is_symlink() or target.exists():
+                raise SystemExit(f"Project already supplies {target}. Inspect the existing skill before linking.")
+            pending.append((target, source))
+
+    if check and pending:
+        raise SystemExit("\n".join(f"Missing project link: {target}" for target, _ in pending))
+    for target, source in pending:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            target.symlink_to(source, target_is_directory=True)
+        except FileExistsError:
+            if not target.is_symlink() or target.resolve() != source.resolve():
+                raise
+    print(f"Verified project skills in {project}: {', '.join(names)}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="report drift without writing")
     mode.add_argument("--adopt", action="store_true", help="back up conflicting personal rules or skills and replace them with links")
+    parser.add_argument("--project", type=Path, metavar="DIR", help="link only the named skills into one project")
+    parser.add_argument("skills", nargs="*", metavar="SKILL", help="skill names to enable with --project")
     args = parser.parse_args()
+    if args.project is not None:
+        if args.adopt or not args.skills:
+            parser.error("--project needs one or more skill names and cannot be combined with --adopt")
+        link_project_skills(args.project, args.skills, args.check)
+        return
+    if args.skills:
+        parser.error("skill names require --project DIR")
     backups = HOME / ".local/state/agent-setup/backups" / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     links = list(destinations())
     desired = {target for target, _ in links}

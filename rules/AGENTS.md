@@ -9,6 +9,8 @@ alwaysApply: true
 
 Start with the observable behavior the user wants. Read the normal entry point, relevant callers and existing checks. When a dependency's behavior matters, check the installed version and its matching documentation. Ask about ambiguity when the answer changes a user-facing contract. Make reversible implementation decisions and verify them.
 
+Look for a suitable project implementation or installed tool before adding a dependency or building a new one.
+
 The user's request and explicit repository requirements govern the work. Reuse surrounding conventions when they support correctness and readability. If a nearby example conflicts with a written rule or has a concrete defect, use the sound pattern in the touched code. Explain the choice if it affects maintenance. Keep unrelated cleanup out of the change.
 
 ## Ownership and colocation
@@ -35,12 +37,24 @@ Type function signatures and use NumPy-style docstrings for nontrivial interface
 
 ## Commit messages
 
-When making a commit, follow the project's explicit convention. The personal default is Conventional Commits: `type(scope): summary`. Use an optional scope that names the affected area and a concise imperative summary, such as `fix(tmux): restore the git tab on reattach`. Use `feat` for a feature, `fix` for a bug, and types such as `docs`, `test` or `refactor` for those changes. Mark a breaking change with `!` before the colon or a `BREAKING CHANGE:` footer. Explain a consequential reason or migration in the body when useful.
+Default to Conventional Commits: `type(scope): summary`. Use an optional scope that names the affected area and a concise imperative summary (ex: "change" not "changed" nor "changes"
+ex: This commit will... or This commit should...), such as `fix(tmux): restore the git tab on reattach`. `feat`. Mark a breaking change with `!` before the colon or a `BREAKING CHANGE:` footer. Explain a consequential reason or migration in the body when useful. Don't capitalize first letter or use period.
+
+Question	If Yes → Type
+Bug fix?	fix
+New or changed feature in API/UI?	feat
+Performance improvement?	perf
+Code restructuring without behavior change?	refactor
+Formatting only?	style
+Tests added/corrected?	test
+Documentation only?	docs
+Build tools, dependencies, versions?	build
+Anything else	chore
 
 ## Verify the behavior
 
 Start with what the user or caller should observe. Use focused unit tests for calculations, boundary values and error cases that can fail independently. Use a real integration for a storage or service contract. Exercise a critical journey end to end when the failure could be in how its parts connect. Choose the fastest check that can catch that failure. Add another test when it catches a distinct regression. Skip assertions that merely repeat an existing check or pin private helper calls.
 
-For example, if a saved preference disappears on reload, change it through the UI, reload, and assert the displayed value. One browser journey covers the save request, storage and reload together when it uses the real local backend. Test a preference's complex validation cases through the validator's public interface. Use repeatable fixtures and independent expected values. When a critical journey repeatedly needs manual setup, give the project one command that sets up its fixture and runs it. Respect project test gates. Use the full `tdd-workflow` when the user or project asks for test-first development.
+For example, if a saved preference disappears on reload, change it through the UI, reload, and assert the displayed value. One browser journey covers the save request, storage and reload together when it uses the real local backend. Test a preference's complex validation cases through the validator's public interface. Use repeatable fixtures and independent expected values. When a critical journey repeatedly needs manual setup, give the project one command that sets up its fixture and runs it. Respect project test gates. For test-first work, show the check failing for the expected reason, then passing after the fix.
 
-For a user-visible fix, exercise the changed path and inspect the outcome. Report the exact check and what it showed. Use `verify-change` for reproducible evidence, `ponytail-review` for a requested local code review and `research-loop` for empirical studies.
+Exercise the changed behavior through its normal entry point and report the command and observed result. For a visual change, inspect comparable before-and-after captures when practical and link the evidence.

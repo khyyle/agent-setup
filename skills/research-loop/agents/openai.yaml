@@ -1,4 +1,0 @@
-interface:
-  display_name: "Research Loop"
-  short_description: "Keep research reproducible, focused, and organized"
-  default_prompt: "Use $research-loop to recover this study's context, fill its research brief from verified sources, and carry out the next bounded research task."
