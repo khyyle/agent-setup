@@ -1,0 +1,34 @@
+---
+description: Internal dashboard (frontend-internal) UI conventions — tokens, primitives, and page patterns.
+globs: frontend-internal/src/**
+alwaysApply: false
+---
+
+# NEXA Internal - UI Conventions
+
+The internal dashboard keeps a deliberately distinct identity from the consumer app: dark, dense, admin-toned. It shares the consumer design-system architecture (tokens + `ui/` primitives) but not its look.
+
+## Tokens
+
+Colors are `@theme` custom properties in `src/index.css`; Tailwind v4 auto-generates utilities from them.
+
+- **`primary`** (`bg-primary`, near-black green `#111816`) — the app's primary-action identity. Every primary button, active toggle pill, and selected segmented control uses it. Never `bg-gray-900` for actions.
+- **`nexa`** (sage green) — the `accent` button variant, reserved for auth and fulfillment CTAs (sign in, create ranch, create vet user).
+- **Status pairs** — `healthy`/`critical`/`warning`/`info` with `-bg`/`-text` companions, plus `status-slate`/`status-amber`/`status-purple` for the device/onboarding domain palettes.
+- **Do NOT hardcode hex in JSX/JS.** Class contexts use token utilities; inline-style contexts (data-driven color maps, SVG) use `var(--color-…)` refs. Exceptions: third-party brand marks (e.g. the Google logo) and the terminal-aesthetic surfaces below.
+
+## Primitives (use these, don't re-roll)
+
+- **`ui/Button`** (+ `buttonVariants`) — `primary/accent/secondary/subtle/danger/dangerOutline/ghost` × `xs/sm/md/lg`. Never inline `backgroundColor` + mouse-event hover swaps.
+- **`ui/Input`** — token focus accent, 16px text, `error` prop.
+- **`ui/TableShell`** — every data table renders inside it (min content width + bounded height with sticky `thead`).
+- **`ui/Badge`** — generic tone pill; **`common/StatusBadge`** stays the domain status pill, driven by the token-backed `{bg, text}` maps in `config/constants.js` (`DEVICE_STATUS_STYLES`, `ONBOARDING_STATUS_STYLES`, `SYNC_STATUS_STYLES`). New status families follow that map pattern — never ad-hoc palette classes.
+- **`common/Modal`**, **`common/Select`**, drawers — viewport-capped, body scroll-locked (`useBodyScrollLock`), portaled menus.
+
+## PageHeader subtitles
+
+Add a `subtitle` only when it conveys non-obvious information (a scope note, a live count, an unfamiliar page's purpose). Omit it when it would restate the title — most pages have none, and that is the norm.
+
+## Terminal-aesthetic exception
+
+`PipelineTestPage`, `TestingRanchMonitor`, `RanchSimulatorTracer`, and the CloudWatch log viewer pane intentionally style a dark dev-tool/terminal skin with inline styles. Leave that skin inline; shared constants in those files should still resolve to `var(--color-…)` tokens where a token exists.

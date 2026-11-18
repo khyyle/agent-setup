@@ -5,3 +5,6 @@ lavish	kunchenguid/lavish-axi	79aa0a18dba9c1a1dcec6db19d2ef4eb7643754b	skills/la
 quota-axi	kunchenguid/quota-axi	5734c41eee52eb9a80ba67f47269ebc06c0c41fc	skills/quota-axi
 playwright-axi	brycehamrick/playwright-axi	e1290d7ab10f5241a2b07706398d2833ae9e857e	skills/playwright-axi
 herdr	herdrdev/herdr	2ecf19a92fc3a7fff75b6ce3655ef04f4625ec01	skills/herdr
+aris	wanshuiyin/Auto-claude-code-research-in-sleep	2901234ad2954cd2388ced8d3aed2ed9de42803a	skills/skills-codex/{experiment-plan,research-wiki} and tools/{research_wiki,capture_filter,threat_scan}.py
+no-mistakes	kunchenguid/no-mistakes	5732d1ed88a1572fa6115d6ede5d69bfec097946	skills/no-mistakes
+unslop	cursor/plugins	93b916d4a1e806507e22f4716b352fa91f2b227e	pstack/skills/unslop

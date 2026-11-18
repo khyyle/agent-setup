@@ -1,1 +1,0 @@
-../../../../nexa-labs/repositories/nexawebapp/AGENTS.md

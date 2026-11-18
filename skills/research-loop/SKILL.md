@@ -191,7 +191,7 @@ dependencies or change tool configuration merely to follow a suggested workflow.
 | Implement an experiment | `ponytail` | Small complete changes; local conventions still apply. |
 | Review connected code | `ponytail-review` | Code quality does not establish scientific validity. |
 | Edit the durable explanation | `humanizer` | Preserve technical meaning and evidence; keep editorial drafts out of maintained reports. |
-| Find literature or design/run a study | Relevant ARIS or other research skill | Invoke the needed stage, not an automatic paper/deployment pipeline. |
+| Find literature or design/run a study | `aris` for experiment planning and the research wiki, or a relevant research skill | Invoke the needed stage, not an automatic paper/deployment pipeline. |
 | Maintain research memory | Existing research-wiki skill | Use it only if the project already uses or requests it; identify which records are authoritative. |
 
 These are optional integrations, not hard dependencies. If a requested specialist

@@ -1,0 +1,154 @@
+---
+description: Hard rules for any shell script that runs as an automation agent (CI runner, GitHub Actions, scheduled job). Applies to scripts under scripts/agent/.
+globs: scripts/agent/**/*.sh
+alwaysApply: false
+---
+
+# Agent shell-script discipline
+
+These scripts run **unattended on a CI runner** with a `GITHUB_TOKEN`,
+sometimes with `--dangerously-skip-permissions` for Claude Code. The blast
+radius is bounded by the runner being ephemeral, but every shortcut here
+becomes a real production hazard.
+
+## Hard rules
+
+### 1. Never use `git add -A` or `git add .`
+
+Both stage the entire working tree, including any untracked file the
+runner happened to leave behind (caches, build artifacts, accidental
+secrets, OS junk like `.DS_Store`). On a CI runner you cannot trust the
+worktree.
+
+**Always** stage from an explicit allowlist of code/doc paths:
+
+```bash
+SAFE_ADD_PATHS=(backend frontend frontend-internal docs scripts AGENTS.md README.md CONTRIBUTING.md Makefile)
+ADD_ARGS=()
+for p in "${SAFE_ADD_PATHS[@]}"; do
+  [[ -e "$p" ]] && ADD_ARGS+=("$p")
+done
+git add -- "${ADD_ARGS[@]}"
+```
+
+Exception: never. If you genuinely need to stage a new path, add it to
+the allowlist explicitly.
+
+### 2. Use a dedicated bot identity per agent script
+
+Every agent commit MUST set both `user.name` and `user.email` inline so
+the commit is unambiguously machine-authored. Use a per-script identity
+matching the bot detection regex in `claude-ci-autofix.yml` and
+`heal-pr.sh`:
+
+```
+^claude-(implement|heal|agent|autofix)@
+```
+
+Examples in use:
+- `Claude Implement <claude-implement@users.noreply.github.com>`
+- `Claude Heal     <claude-heal@users.noreply.github.com>`
+- `Claude Autofix  <claude-autofix@users.noreply.github.com>`
+
+Adding a new agent identity? Update the regex in **both** detection
+sites (heal-pr.sh and claude-ci-autofix.yml) at the same time.
+
+### 3. Tag every agent commit with a trailer
+
+Every agent commit body must include at least one of:
+
+```
+Agent-Implemented: tier-2     # Phase F autopilot wrote this
+Agent-Heal: tier-2|tier-3     # heal-pr.sh wrote this
+Agent-Autofix: tier-1         # autofix-pr.sh wrote this
+```
+
+Plus a `Co-authored-by: claude-agent <bot@nexa.farm>` for `git shortlog`.
+The trailers drive retry caps and bot-authored detection.
+
+### 4. Always cap retries via commit-trailer counts
+
+Don't store retry state in temp files or labels. Count existing trailers
+on the branch:
+
+```bash
+COUNT="$(git log "origin/$BRANCH" --grep='^Agent-Heal:' --oneline | wc -l | tr -d ' ')"
+if [[ "$COUNT" -ge "$MAX_RETRIES" ]]; then
+  # bail
+fi
+```
+
+Trailers are durable; temp state isn't. CI runners are ephemeral.
+
+### 5. Bot-authored detection: STRONG signals only
+
+Detect bot PRs from **two anchored signals only**:
+
+1. Committer email regex: `^claude-(implement|heal|agent|autofix)@`
+   (read with `git log --format='%cE'`)
+2. Anchored `^Agent-Implemented:` trailer
+   (read with `git log --format='%B'`)
+
+Do NOT use `git log --grep='claude-agent'`. `git log --grep` ORs multiple
+patterns and will false-positive on human commits like `"fix regression
+from claude-agent run"`.
+
+### 6. Bail loudly, comment back, exit cleanly
+
+When an agent script declines to push (no-touch zone, scope cap, check
+failed), it MUST:
+
+1. Print a `BAIL:` line to stderr the runner can grep.
+2. Post a diagnostic comment on the issue or PR explaining why.
+3. Exit with a clean numeric code (20 / 30 / 31 / 32 / 40 — see
+   `implement-issue.sh` exit-code table for the canonical mapping).
+
+Never `exit 1` from a clean bail — the calling workflow uses the exit
+code to choose its Slack copy. Reusing `1` muddies the signal.
+
+### 7. Heredoc safety
+
+Bash heredocs choke on stray apostrophes inside variables interpolated
+into the body. When composing prompts, prefer `$(cat <<'EOF' ... EOF)`
+(quoted EOF, no interpolation) when the body is static, and
+`$(cat <<EOF ... EOF)` (unquoted) only when you need interpolation.
+Always run `bash -n script.sh` before committing.
+
+### 8. Never trust the worktree to be clean
+
+At the top of any agent script that mutates files, verify the working
+tree is clean:
+
+```bash
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "Error: working tree is dirty. Commit or stash before running." >&2
+  exit 10
+fi
+```
+
+Or, if the script is meant to be run inside a CI runner (where the
+checkout is always fresh), document that assumption in the script header.
+
+### 9. PATH safety
+
+Every agent script must export an explicit PATH at the top so it works
+both on the user's machine and on the GitHub runner without depending on
+shell init files:
+
+```bash
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+```
+
+### 10. `--dangerously-skip-permissions` requires bounded blast radius
+
+Only acceptable when ALL of the following are true:
+
+- runner is ephemeral (GitHub Actions, fresh container)
+- working branch was just created from `staging` (the integration branch
+  under the staging-first policy; see `AGENTS.md` "Branching policy")
+  and is never auto-merged
+- result is validated post-edit (no-touch regex, diff-line cap, file-count cap, `make check`)
+- output is captured to a log that's surfaced in the workflow run
+
+Violating any of these means you've built an unreviewed direct path
+to production. Don't do it.

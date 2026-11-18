@@ -1,0 +1,89 @@
+---
+description: Universal code quality principles applied across all languages and files.
+alwaysApply: true
+---
+
+# General Code Quality Standards
+
+## Core Principles
+
+- **DRY (Don't Repeat Yourself)**: Every piece of logic has one authoritative location. Before writing a utility, check if it already exists elsewhere in the codebase.
+- **KISS (Keep It Simple)**: Choose the simplest solution that solves the problem. If code needs a long comment to explain, refactor the code first.
+- **YAGNI (You Aren't Gonna Need It)**: Do not build abstractions, features, or parameters for hypothetical future use. Solve what is needed now.
+- **SRP (Single Responsibility)**: Each function, class, or module should have one clear reason to change. If a function does two unrelated things, split it.
+- **Composition Over Inheritance**: Prefer combining small, focused pieces over deep class hierarchies. Inheritance is for true "is-a" relationships only.
+
+## Modularization & File Organization
+
+- Extract logic into its own file/module when it serves a distinct responsibility or is reused across multiple consumers.
+- Group related files by domain or feature, not by file type alone.
+- Keep files focused — a file that grows past ~300 lines is a signal to split.
+- Avoid circular dependencies between modules; use a clear dependency direction.
+
+## Comments & Documentation
+
+Comments explain **why**, never **what**. If code needs a comment to describe what it does, the fix is better naming — not a comment. A comment describes the code as it stands now, for a reader who has never seen it change. A useful comment states the invariant and the consequence of violating it; omit the comment when the code already makes both clear.
+
+**Write a comment when:**
+- A business rule would surprise a future reader (`+ 1` because the upstream range is end-exclusive)
+- An external limitation forced a workaround (link to the upstream issue or doc, not a description of it)
+- An invariant the type system cannot enforce ("caller guarantees this list is pre-sorted")
+- A deliberate trade-off was made and a simpler approach was tried and rejected — say why
+- A test deliberately uses an independent literal or fixture to pin a persisted or wire contract; explain why reusing the implementation constant would make the test self-referential
+
+**Never write a comment that:**
+- Narrates the edit history or how the code got here: `// now uses X`, `// no longer needed`, `// moved from Y`, `// renamed from Z`, `// previously did W`. Describe what the code *is*; `git blame` holds the history.
+- Reads as a note-to-self or references the task/conversation that produced it: `// per our discussion`, `// as requested`, `// the fix for the issue above`, `// new approach`. The next reader has no access to that context and does not need it.
+- Cross-references another component by restating its behavior: `// the live counter lives in the footer`, `// mirrors the ingest tab`. Such pointers rot the moment the other component moves or changes, and couple this code's documentation to unrelated code.
+- Mentions specific function names, variable names, or class names — those names change; comments that reference them rot on the next rename.
+- Narrates control flow: `// loop through items`, `// call the API`, `// return result`
+- Acts as a section divider or heading: `// === Helpers ===`, `// Setup`, `// Teardown`
+- Restates the type, value, or structure already visible in the code
+- Could be deleted without any reader losing information
+- Exposes consumers: `# Used by AlertService and CowDetailPage` — a module does not know who calls it. Comments that enumerate callers couple the definition to its clients in documentation, go stale the moment a new consumer is added, and make shared modules brittle to extend. The definition describes what it *is*, never where it is *used*.
+
+**Format:**
+- Prefer a single inline or above-the-line comment over a multi-line block
+- Block comments and multi-line docstrings are for public API surfaces only, not internal logic
+- No horizontal rules, no ASCII art, no emoji in comments
+
+**Never leave commented-out code.** Use `git` to retrieve old code.
+
+## Naming
+
+### Variables & Parameters
+- AVOID abbreviations. Use the full word unless the abbreviation is universally understood (`url`, `id`, `http`, `api`).
+  - EX: `version` not `ver`, `response` not `resp`, `message` not `msg`, `config` not `cfg`
+- AVOID generic placeholder names with no domain meaning: `data`, `result`, `obj`, `temp`, `val`, `info`, `item`
+- Use domain language. Prefer `cattle_count` over `n`, `health_score` over `score`, `alert_threshold` over `threshold`
+- Collections are plural nouns: `devices`, `animals`, `alerts` — not `device_list`, `animal_array`, `alert_set`
+- Booleans read as true/false questions: `is_active`, `has_permission`, `should_retry`, `can_edit`, `was_updated`
+
+### Functions & Methods
+- Verb-first names that describe the action: `fetch_alerts`, `validate_health_data`, `build_report`, `parse_response`
+- Predicates that return bool start with `is_`, `has_`, `can_`, `should_`
+- Avoid `get_` on functions with side effects — reserve it for pure lookups
+
+### Constants
+- Module-level constants in `SCREAMING_SNAKE_CASE`
+- Named constants explain the purpose, not the value: `MAX_RETRY_ATTEMPTS = 3` not `ATTEMPTS = 3`
+- No magic numbers or strings inline
+
+### Anti-patterns
+- Single-letter names outside tight loop indices (`i`, `j`) or established math conventions
+- Type-suffixed names: `user_dict`, `name_str`, `ids_list` — the name should describe the concept, not the container
+- Shadowing built-ins: never reuse `list`, `dict`, `id`, `type`, `input`, `filter` as identifiers
+
+## Error Handling
+
+- Catch specific exceptions, not broad `Exception` or `Error` types.
+- Never silently swallow errors — log and/or re-raise.
+- Fail fast: validate inputs early rather than letting bad data propagate.
+
+## General Hygiene
+
+- No global mutable state — pass dependencies explicitly.
+- No emojis in code or comments.
+- Do not write excessive documentation files unless explicitly asked.
+- No `print()` / `console.log()` left in committed code — use proper logging.
+- Prefer pure functions where possible — same inputs always produce same outputs, no side effects.

@@ -1,6 +1,0 @@
----
-description: Investigate coding tasks and resolve uncertainty proportionately.
-alwaysApply: true
----
-
-Read the implicated entry point, callers and available evidence before making a change. For small reversible edits, proceed with a stated assumption when it matters. For ambiguous cross-system work, identify the affected contracts and the check that would distinguish the plausible interpretations. Revisit the hypothesis when new evidence contradicts it. Ask when the decision materially changes the requested outcome.

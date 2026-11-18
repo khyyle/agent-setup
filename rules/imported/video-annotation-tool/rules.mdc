@@ -1,0 +1,124 @@
+---
+description: |
+  Style guide and project overview for the entire NEXA frontend.  
+  Applies to all React components, services, configuration, and assets under `frontend/src/**`.
+globs:
+  - frontend/src/**
+alwaysApply: true
+---
+# GENERAL
+- Do not write excessive .md files for documentation unless prompted to do so after making edits.
+
+# FRONTEND GUIDE
+You are an expert in React, Vite, Tailwind CSS, Electron IPC, Zustand, TanStack Query & Router, and modern JavaScript/TypeScript tooling. Apply these conventions consistently across **all** files under `frontend/src/`:
+
+## 1. Project Configuration & Conventions
+
+- **TypeScript / JS Modules**  
+  - Use `.jsx` with ESModules (`import`/`export`).  
+  - No `require()`; always prefer named exports.  
+  - Never use `any`—whenever possible declare types or interfaces.  
+  - **No global variables**; all constants, configurations, and state must be encapsulated in modules, hooks, or context providers.
+- **Packaging & Build**  
+  - Keep `package.json`, `vite.config.js`, `tailwind.config.js`, and `.env` in sync.  
+  - All environment variables must be prefixed with `VITE_` in `.env`.
+- **Linting & Formatting**  
+  - ESLint rules from `eslint.config.js` apply to the entire tree—no disabling rules inline except in rare, justified cases.  
+  - Prettier (if enabled) for consistent code style—wrap at 100 chars.
+  - No global variables
+
+## 2. File Organization & Naming
+
+- **Directories**:  
+  - `src/components` → UI components  
+  - `src/services` → API and data‑layer code  
+  - `src/hooks` → custom React hooks  
+  - `src/lib`      → pure utilities/helpers  
+  - `src/assets`   → static images, icons, Lottie JSON
+- **Filenames**:  
+  - **PascalCase** for React components (`CowDetail.jsx`)  
+  - **camelCase** for hooks and utilities (`useFetchCow.js`, `calculateBaseline.js`)  
+  - **kebab-case** for asset filenames (`cow-icon.svg`, `loading-animation.json`)
+
+## 3. React & State Management
+
+- **Functional Components Only**  
+  - Use hooks (`useState`, `useEffect`, `useCallback`, `useMemo`)—no class components.
+- **Zustand for Global State**  
+  - Central store in `src/lib/store.js` or `src/hooks/useStore.js`.  
+  - Slice your store by domain (e.g. `useCowStore`, `useAlertStore`).
+- **TanStack Query/Router**  
+  - All data fetching via `useQuery`/`useMutation` in `src/services/api.js`.  
+  - Route‑driven loaders/actions in your main router file (`App.jsx`).
+
+## 4. Styling & UI
+
+- **Tailwind CSS**  
+  - Mobile‑first: default styles are for small screens, then `sm:`, `md:`, `lg:`.  
+  - No inline `<style>` or CSS modules—everything via Tailwind utility classes.
+- **Shadcn/UI (optional)**  
+  - Use Radix‑based, Tailwind‑styled components for dialogs, tooltips, etc.  
+- **Responsive & Accessible**  
+  - Ensure clickable/tappable areas ≥ 44 px.  
+  - Include ARIA roles and keyboard navigation support.
+
+## 5. API Layer & Services
+
+- **Single Source of Truth** in `src/services/api.js`  
+  - One named export per endpoint (`login`, `getRanches`, `fetchCowDetails`, etc.).  
+  - All calls return standardized `{ data, error }` shapes.
+- **Error Handling**  
+  - Throw or return errors in a consistent format.  
+  - UI components must handle loading, success, and error states via `useQuery`’s status flags.
+
+## 6. Electron IPC (if used)
+
+- All IPC channels defined in `src/ipc/`  
+- Strictly type request/response payloads using TypeScript interfaces.  
+- Only invoke IPC in effectful hooks; never inside render.
+
+## 7. Assets & Animations
+
+- **SVGs** stored in `src/assets/icons/`  
+- **Lottie JSON** in `src/assets/animations/`  
+- Import as modules:
+  ```js
+  import CowIcon from '../assets/icons/cow.svg'
+  import loadingAnimation from '../assets/animations/loading.json'
+
+# BACKEND GUIDE
+
+## 1. Project configuration and conventions
+- **Backend structure**
+  - We have three different environments: local, staging, and prod. In development, we should stick to the local, but we leave staging and prod environments in if we need to connect to the database and seed it with new values
+  - `backend/apps/config/` contains the logic for setting environment variables and key constants. `base.py` is the base logic and then the local, staging, prod define different setup for the three different environments. 
+  - `backend/ml` contains inference and heavy data processing logic that commonly uses redis as an cache or ephemeral cache. Our health models are here as well
+  - `backend/tests` contains our pytest CI for github actions. We should be sure to write relevant tests in CI as we add on different layers that stress test edge cases and look for "expected behavior" of a function, class or service
+- 
+
+## 2. Python and code quality guidelines
+- **Code quality**
+  - Avoid global variables. 
+  - Constants should be declared in `SHOUTING_CASE` at top of file or in a function if the file is complex / long
+  - You should write docstrings for most functions in the below form unless they are utility functions that don't need explaining and won't be called in any interfaces. In rare cases, you can add a field "Notes" if the function is really complex but avoid making these docstrings to convoluted
+  
+  ```python 
+  """
+  Parameters:
+  ----------
+  variable_name: (type)
+    clear and relevant description.
+  ...
+
+  Returns:
+  --------
+  variable 1: (type)
+    clear and relevant description
+  variable 2: (type)
+    clear and relevant description
+  """
+  ```
+  - Use proper abstraction and organization at all times that is logical, scalable, and minimizes excessive code complexity. 
+  - Do not write redundant code--especially if it exists in other files. You should check against this first.
+  - Do not use emojis in your code. If you see any, clean them up.
+  - Do not write excessive comments. Only add comments to things that are complex and need that extra small explanation

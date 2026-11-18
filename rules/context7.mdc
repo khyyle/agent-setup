@@ -1,6 +1,0 @@
----
-description: Look up current, version-specific library behavior when a task depends on it.
-alwaysApply: false
----
-
-Check the project's installed version. Use Context7 when available, or the library's official documentation, for a concrete API, compatibility or migration question. Cite the page supporting the decision when useful.
