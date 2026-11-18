@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""Open or reattach a project workspace on the agent-setup tmux server."""
+
+import argparse
+import hashlib
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+
+SERVER = "agent-setup"
+CONFIG = Path(__file__).resolve().with_name("tmux.conf")
+TMUX = ["tmux", "-L", SERVER, "-f", str(CONFIG)]
+SHELL_AFTER = '; exec "$SHELL" -l'
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("directory", nargs="?", type=Path, default=Path.cwd())
+    parser.add_argument("--music", action="store_true", help="add Apple Music controls and now playing")
+    parser.add_argument("--detach", action="store_true", help="prepare the workspace without attaching")
+    args = parser.parse_args()
+    directory = args.directory.expanduser().resolve()
+    if not directory.is_dir():
+        parser.error(f"Directory does not exist: {directory}")
+    if not shutil.which("tmux"):
+        parser.error("Install tmux and run this command again.")
+    if args.music and sys.platform != "darwin":
+        parser.error("The Apple Music integration requires macOS.")
+    inside = os.environ.get("TMUX", "").rsplit(",", 2)[0]
+    if inside and Path(inside).name != SERVER and not args.detach:
+        parser.error("Open agent-tmux in a fresh IDE terminal, or use --detach to prepare it here.")
+
+    git_root = subprocess.run(["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
+                              capture_output=True)
+    if git_root.returncode == 0:
+        directory = Path(os.fsdecode(git_root.stdout.removesuffix(b"\n"))).resolve()
+    slug = re.sub(r"[^A-Za-z0-9_-]+", "-", directory.name).strip("-") or "project"
+    digest = hashlib.sha256(os.fsencode(directory)).hexdigest()[:10]
+    session = f"{slug[:32]}-{digest}"
+    target = f"={session}"
+    # tmux expands formats in -c even when the directory is a single argv entry.
+    cwd = str(directory).replace("#", "##")
+
+    exists = subprocess.run(TMUX + ["has-session", "-t", target], capture_output=True)
+    if exists.returncode:
+        startup = ["new-session", "-d", "-s", session, "-c", cwd, "-n", "pi",
+                   "pi --name implement" + SHELL_AFTER,
+                   ";", "new-window", "-d", "-t", session + ":", "-c", cwd, "-n", "review",
+                   "codex -s read-only -a never" + SHELL_AFTER]
+        created = subprocess.run(TMUX + startup, text=True, capture_output=True)
+        # A concurrent launcher may have created the whole workspace first.
+        if created.returncode and f"duplicate session: {session}" not in created.stderr:
+            raise SystemExit(created.stderr.strip() or "Could not create the tmux workspace.")
+    else:
+        # A running server reads -f only at startup. Refresh the preset on reattach.
+        subprocess.run(TMUX + ["source-file", str(CONFIG)], check=True)
+
+    git_start = "git status --short --branch" if git_root.returncode == 0 else (
+        "printf 'Open a worktree here to use Git.\\n'"
+    )
+    # -Sd restores a missing tab and preserves the focus and shell of an existing one.
+    subprocess.run(TMUX + ["new-window", "-Sd", "-t", session + ":", "-c", cwd,
+                           "-n", "git", git_start + SHELL_AFTER], check=True)
+
+    if args.music:
+        command = "agent-music info; printf '\\nControls: agent-music toggle | next | previous\\n'" + SHELL_AFTER
+        status = "#[fg=#a5afd1]#(agent-music status)  #[fg=#878eaa]%H:%M "
+        subprocess.run(TMUX + ["new-window", "-Sd", "-t", session + ":", "-c", cwd,
+                               "-n", "music", command, ";", "set-option", "-t", target + ":",
+                               "status-right", status], check=True)
+
+    if args.detach:
+        print(f"Prepared {session} in {directory}")
+        return
+    action = "switch-client" if inside else "attach-session"
+    os.execvp("tmux", TMUX + [action, "-t", target])
+
+
+if __name__ == "__main__":
+    main()

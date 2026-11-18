@@ -30,6 +30,8 @@ def destinations() -> Iterator[tuple[Path, Path]]:
     yield HOME / ".local/bin/herdr", ROOT / "tools/bin/herdr"
     yield HOME / ".local/bin/no-mistakes", ROOT / "tools/bin/no-mistakes"
     yield HOME / ".local/bin/exa-axi", ROOT / "tools/exa-axi.mjs"
+    for name in ("agent-tmux", "agent-music"):
+        yield HOME / ".local/bin" / name, ROOT / "terminal" / name
 
 
 def managed_entry(target: Path) -> bool:
