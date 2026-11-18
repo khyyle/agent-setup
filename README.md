@@ -36,13 +36,15 @@ The linker stops at an existing personal rule or skill it does not manage. Use `
 
 ### Optional setup
 
-- For Apple Music, install Encore with `brew install bogdankim/tap/encore`, then run `agent-tmux --encore`. [Encore](https://github.com/bogdankim/encore)
+- For Apple Music, run `./scripts/install-extras.sh --encore`, then launch the tab with `agent-tmux --encore`. [Encore](https://github.com/bogdankim/encore)
 - To keep a skill off the global list, add its name to `skills/project-only.txt` and rerun `python3 scripts/link.py`. To enable it in one project, run `python3 scripts/link.py --project /path/to/project skill-name`. The command preserves existing project skills. [Project-only list](skills/project-only.txt)
 
-Install the Pi skill toggle with the revision below. It scans the shared user skills directory.
+Install the pinned Pi extensions. The script uses Homebrew if Chafa or FFmpeg is missing.
 
 ```sh
-pi install git:github.com/Whamp/pi-skill-toggle@bfb4ff810e49cf42c43ea818c5676a2e74398f3f
+./scripts/install-extras.sh
 ```
 
-Restart Pi and open `/skills-toggle`. The manual-only setting edits `SKILL.md`. With this setup's symlinks, that edits the file in the checkout. [Pi Skill Toggle](https://github.com/Whamp/pi-skill-toggle)
+Restart Pi or run `/reload`. Use `/voice-settings` to select a local transcription model, `/agents` to manage subagents, `/images status` to check screenshot support, and `/md` to export a conversation. Ask Pi to show a screenshot by path.
+
+Use `/skills-toggle` to choose which skills Pi can load. The manual-only setting edits `SKILL.md`. With this setup's symlinks, that edits the file in the checkout. [Pi Skill Toggle](https://github.com/Whamp/pi-skill-toggle)

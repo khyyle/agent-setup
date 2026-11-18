@@ -74,7 +74,14 @@ def main() -> None:
         print(f"Prepared {session} in {directory}")
         return
     action = "switch-client" if inside else "attach-session"
-    os.execvp("tmux", TMUX + [action, "-t", target])
+    frontend = os.environ.get("TERM_PROGRAM", "").lower()
+    terminal = os.environ.get("TERM", "")
+    client_options = []
+    # IDE terminals and Ghostty can report xterm-256color despite supporting OSC 8.
+    if not inside and (frontend in {"vscode", "ghostty", "iterm.app", "wezterm"}
+                       or terminal in {"xterm-ghostty", "xterm-kitty"}):
+        client_options = ["-T", "hyperlinks,RGB"]
+    os.execvp("tmux", TMUX + client_options + [action, "-t", target])
 
 
 if __name__ == "__main__":
