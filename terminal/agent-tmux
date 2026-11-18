@@ -12,6 +12,7 @@ import subprocess
 
 SERVER = "agent-setup"
 CONFIG = Path(__file__).resolve().with_name("tmux.conf")
+MUSIC_STATUS = CONFIG.with_name("music-status")
 TMUX = ["tmux", "-L", SERVER, "-f", str(CONFIG)]
 SHELL_AFTER = '; exec "$SHELL" -l'
 
@@ -19,7 +20,9 @@ SHELL_AFTER = '; exec "$SHELL" -l'
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", nargs="?", type=Path, default=Path.cwd())
-    parser.add_argument("--encore", action="store_true", help="add an Encore tab for Apple Music")
+    music_tab = parser.add_mutually_exclusive_group()
+    music_tab.add_argument("--encore", action="store_true", help="require Encore for the music tab")
+    music_tab.add_argument("--no-music-tab", action="store_true", help="skip opening the music tab")
     parser.add_argument("--detach", action="store_true", help="prepare the workspace without attaching")
     args = parser.parse_args()
     directory = args.directory.expanduser().resolve()
@@ -27,7 +30,7 @@ def main() -> None:
         parser.error(f"Directory does not exist: {directory}")
     if not shutil.which("tmux"):
         parser.error("Install tmux and run this command again.")
-    encore = shutil.which("encore") if args.encore else None
+    encore = None if args.no_music_tab else shutil.which("encore")
     if args.encore and encore is None:
         parser.error("Install Encore with brew install bogdankim/tap/encore and run this command again.")
     inside = os.environ.get("TMUX", "").rsplit(",", 2)[0]
@@ -67,8 +70,16 @@ def main() -> None:
                            "-n", "git", git_start + SHELL_AFTER], check=True)
 
     if encore is not None:
-        subprocess.run(TMUX + ["new-window", "-Sd", "-t", session + ":", "-c", cwd,
-                               "-n", "encore", shlex.quote(os.path.abspath(encore))], check=True)
+        subprocess.run(TMUX + [
+            "if-shell", "-F", "-t", session + ":",
+            "#{&&:#{N/w:encore},#{==:#{N/w:music},0}}",
+            f"rename-window -t {session}:=encore music",
+            ";", "new-window", "-Sd", "-t", session + ":", "-c", cwd,
+            "-n", "music", shlex.quote(os.path.abspath(encore)),
+        ], check=True)
+
+    subprocess.run(TMUX + ["set-environment", "-g", "AGENT_SETUP_MUSIC_STATUS", str(MUSIC_STATUS)],
+                   check=True)
 
     if args.detach:
         print(f"Prepared {session} in {directory}")

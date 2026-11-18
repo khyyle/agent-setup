@@ -1,4 +1,5 @@
 #!/bin/sh
+# Install optional Pi packages into Pi's user profile and offer Encore for tmux.
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -18,14 +19,16 @@ if [ ! -x "$pi" ]; then
   exit 1
 fi
 
+# Install media utilities only when the existing PATH cannot provide them.
 command -v chafa >/dev/null 2>&1 || brew install chafa
 command -v ffmpeg >/dev/null 2>&1 || brew install ffmpeg
 if "$install_encore" && ! command -v encore >/dev/null 2>&1; then
   brew install bogdankim/tap/encore
 fi
 
-# This revision discovers the symlinks in ~/.agents/skills.
+# This revision scans the shared user skills directory at ~/.agents/skills.
 "$pi" install git:github.com/Whamp/pi-skill-toggle@bfb4ff810e49cf42c43ea818c5676a2e74398f3f
+# Remove the older npm entry after the replacement is registered.
 packages=$("$pi" list --no-approve)
 old_toggle=$(printf '%s\n' "$packages" | awk '/^  npm:pi-skill-toggle(@[^ ]+)?$/ {print $1; exit}')
 if [ -n "$old_toggle" ]; then

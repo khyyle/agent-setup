@@ -1,0 +1,16 @@
+#!/usr/bin/osascript -l JavaScript
+// Read the active track for tmux without launching Music or changing playback.
+function run() {
+    try {
+        const music = Application("com.apple.Music");
+        if (!music.running() || music.playerState() !== "playing") return "";
+
+        const track = music.currentTrack;
+        const label = [track.name(), track.artist()].filter(Boolean).join(" / ")
+            .replace(/[\x00-\x1f\x7f]/g, " ").trim();
+        // Escape tmux style markers in track titles before displaying them.
+        return label ? "♪ " + Array.from(label).slice(0, 36).join("").replace(/#/g, "##") + "  " : "";
+    } catch (error) {
+        return "";
+    }
+}

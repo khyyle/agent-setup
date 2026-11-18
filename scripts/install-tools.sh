@@ -1,4 +1,5 @@
 #!/bin/sh
+# Install the pinned CLI packages, release binaries, and Chromium for this checkout.
 set -eu
 cd "$(dirname "$0")/.."
 if [ "$(uname -sm)" != 'Darwin arm64' ]; then
@@ -8,6 +9,8 @@ fi
 node -e 'if (Number(process.versions.node.split(".")[0]) < 24) { console.error("Use Node 24 or newer"); process.exit(1) }'
 npm ci --prefix tools --ignore-scripts --no-audit --no-fund
 mkdir -p tools/bin
+
+# Reuse cached binaries only if they match the pinned checksums.
 digest=fb77c2232a05a8035421382c894392f4174e4e38a18e48af3dd0290157c3a7e2
 if ! echo "$digest  tools/bin/herdr" | shasum -a 256 -c >/dev/null 2>&1; then
   download="$(mktemp tools/bin/herdr.XXXXXX)"
@@ -22,10 +25,12 @@ if ! echo "$gate_digest  tools/bin/no-mistakes" | shasum -a 256 -c >/dev/null 2>
   gate_tmp="$(mktemp -d tools/bin/no-mistakes.XXXXXX)"
   trap 'rm -rf "$gate_tmp"' EXIT
   curl --fail --location --silent --show-error https://github.com/kunchenguid/no-mistakes/releases/download/v1.106.1/no-mistakes-v1.106.1-darwin-arm64.tar.gz -o "$gate_tmp/release.tgz"
+  # Verify the archive before extraction and the executable before publishing it.
   echo "3105ae3ffd9f5f6dc27674302dcd126a89ba9c23d43ecb8be5e266ac52f1472c  $gate_tmp/release.tgz" | shasum -a 256 -c
   tar -xOzf "$gate_tmp/release.tgz" no-mistakes > "$gate_tmp/no-mistakes"
   echo "$gate_digest  $gate_tmp/no-mistakes" | shasum -a 256 -c
   chmod 755 "$gate_tmp/no-mistakes"
   mv "$gate_tmp/no-mistakes" tools/bin/no-mistakes
 fi
+# Keep browser versions that other checkouts may still use.
 PLAYWRIGHT_SKIP_BROWSER_GC=1 tools/node_modules/.bin/playwright install chromium

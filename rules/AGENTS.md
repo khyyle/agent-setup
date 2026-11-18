@@ -29,16 +29,15 @@ Start with a local definition. Extract shared logic when consumers implement the
 - Orient readers at module boundaries. Use the language's native module docstring or file comment when purpose, scope or assumptions need an introduction. Above a section, explain what that phase accomplishes and why it sits there. Beside a surprising operation, explain the offset, unit conversion or invariant that makes it correct. A block comment can take the space needed for a derivation, example or tradeoff, including inside a private function. Omit narration that merely translates the next line and keep edit history in Git.
 - In UI work, reuse the project's components and tokens. Handle the loading, empty, error and keyboard interaction states relevant to the change. For unattended scripts, scope file operations and staging explicitly, preserve failure exit codes and keep credentials out of output.
 
-For worked examples of naming, comments and helper boundaries, see `~/projects/agent-setup/rules/code-quality.md`.
+For worked examples of naming, comments and helper boundaries, see `~/.local/share/agent-setup/rules/code-quality.md` or `rules/code-quality.md` in the reference checkout.
 
 ## Python
 
-Type function signatures and use NumPy-style docstrings for nontrivial interfaces. When writing Python, see `~/projects/agent-setup/rules/python.md` for conventions and a worked example.
+Type function signatures and use NumPy-style docstrings for nontrivial interfaces. See `~/.local/share/agent-setup/rules/python.md` or `rules/python.md` in the reference checkout for conventions and a worked example.
 
 ## Commit messages
 
-Default to Conventional Commits: `type(scope): summary`. Use an optional scope that names the affected area and a concise imperative summary (ex: "change" not "changed" nor "changes"
-ex: This commit will... or This commit should...), such as `fix(tmux): restore the git tab on reattach`. `feat`. Mark a breaking change with `!` before the colon or a `BREAKING CHANGE:` footer. Explain a consequential reason or migration in the body when useful. Don't capitalize first letter or use period.
+Default to Conventional Commits: `type(scope): summary`. Use an optional scope that names the affected area and a concise imperative summary (ex: "change" not "changed" nor "changes"), such as `fix(tmux): restore the git tab on reattach`. `feat`. Mark a breaking change with `!` before the colon or a `BREAKING CHANGE:` footer. Explain a consequential reason or migration in the body when useful. Don't capitalize first letter or use period.
 
 Question	If Yes → Type
 Bug fix?	fix
