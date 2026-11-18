@@ -1,120 +1,34 @@
 ---
-description: Python code quality standards and NumPy-style docstrings for all backend Python files.
+description: Personal Python conventions for typed functions and NumPy-style documentation.
 globs: "**/*.py"
 alwaysApply: false
 ---
 
-# Python Code Quality Standards
+# Python conventions
 
-## Docstrings (NumPy Style)
+Annotate function signatures and use the built-in generic types supported by the project's Python version. Prefer domain names, explicit dependencies and specific exceptions. Log at the boundary that handles a failure. A CLI may write its intended result to stdout. Name thresholds, wire values and policies when the name explains their meaning.
 
-Write NumPy-style docstrings for all non-trivial functions, class methods, and classes. Skip only for simple private utility helpers that are self-explanatory.
-
-```python
-# ✅ GOOD
-def sync_cow_records(ranch_id: int, records: list[dict]) -> tuple[int, int]:
-    """
-    Sync incoming cattle records against the database for a given ranch.
-
-    Parameters:
-    -----------
-    ranch_id: int
-        Primary key of the ranch to sync records for.
-    records: list[dict]
-        Raw cattle records from the upstream data source.
-
-    Returns:
-    --------
-    created: int
-        Count of newly created cow records.
-    updated: int
-        Count of existing cow records that were updated.
-
-    Raises:
-    -------
-    ValueError
-        If `records` contains entries with missing required fields.
-    """
-```
+Use NumPy-style docstrings for nontrivial functions, methods and classes. Describe units, data shape, missingness, timezone, side effects, return values or raised errors when callers need them. Skip boilerplate on self-explanatory private helpers. Use plain section headers with a matching underline and standard `name : type` entries.
 
 ```python
-# ❌ BAD — wrong separator length, no colon after section name, no type annotations
-def sync_cow_records(ranch_id, records):
-    """
+def local_day(timestamp: datetime, zone: ZoneInfo) -> date:
+    """Return the calendar date at the observation site.
+
     Parameters
-    ---------
-    ranch_id:
-      The ranch id.
+    ----------
+    timestamp : datetime
+        Timezone-aware observation time.
+    zone : ZoneInfo
+        Timezone used by the site's daily reports.
 
-    Returns
-    -------
-    counts of created and updated records
+    Raises
+    ------
+    ValueError
+        If the timestamp has no UTC offset.
     """
+    if timestamp.utcoffset() is None:
+        raise ValueError("Observation timestamp must include a UTC offset")
+    return timestamp.astimezone(zone).date()
 ```
 
-### Section Rules
-- **Section headers**: plain word (`Parameters`, `Returns`, `Raises`), followed by a line of dashes the same length as the header.
-- **Parameters**: `name: type` on one line, indented description on the next (4 spaces).
-- **Returns**: named or anonymous. Use `name: type` when returning multiple values; use just `type` for a single return.
-- Add a `Notes` section only for genuinely non-obvious algorithmic decisions—keep it brief.
-- Use single backticks for inline monospace (`value`, not  ``value``).
-
----
-
-## Type Annotations
-
-Always annotate function signatures. Use built-in generics (`list[str]`, `dict[str, int]`) over `typing` imports where Python ≥ 3.10.
-
-```python
-# ✅
-def get_alerts(cow_id: int, severity: str = "critical") -> list[dict]:
-
-# ❌
-def get_alerts(cow_id, severity="critical"):
-```
-
----
-
-## Constants & Variables
-
-- Module-level constants in `SHOUTING_CASE`.
-- No bare magic numbers or strings inline—assign to a named constant first.
-- No global mutable state; pass dependencies explicitly.
-
-```python
-# ✅
-MAX_RETRY_ATTEMPTS = 3
-DEFAULT_SEVERITY = "warning"
-
-# ❌
-for _ in range(3):  # magic number
-```
-
----
-
-## Error Handling
-
-Catch specific exceptions and log where reasonable; never silently swallow errors.
-
-```python
-# ✅
-try:
-    result = fetch_sensor_data(cow_id)
-except SensorUnavailableError as exc:
-    logger.error("Sensor fetch failed for cow %s: %s", cow_id, exc)
-    raise
-
-# ❌
-try:
-    result = fetch_sensor_data(cow_id)
-except Exception:
-    pass
-```
-
----
-
-## Python-Specific Checklist
-
-- No `print()` for debugging in committed code; use `logger`.
-- Use `if __name__ == "__main__":` guards for scripts that should also be importable.
-- Comments and docstrings follow the discipline in `general-code-quality.mdc`: explain *why*, describe the code's current behavior — never the edit history, the task that produced the change, or another module's behavior — and never narrate control flow. Docstrings document the function as it stands, not how it changed.
+Keep numerical controls and fixtures with the owning package or study. Document approximations and units. Use an independent expected value when testing a scientific, serialized or wire contract.

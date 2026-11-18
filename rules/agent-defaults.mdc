@@ -1,0 +1,6 @@
+---
+description: Personal implementation, colocation and verification conventions.
+alwaysApply: true
+---
+
+For development tasks read and apply the shared personal guide at `~/.codex/AGENTS.md`. Apply explicit project requirements first.

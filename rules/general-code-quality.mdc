@@ -16,7 +16,7 @@ alwaysApply: true
 ## Modularization & File Organization
 
 - Extract logic into its own file/module when it serves a distinct responsibility or is reused across multiple consumers.
-- Group related files by domain or feature, not by file type alone.
+- Keep feature-specific logic, fixtures, and explanations with the owning feature. In projects with a mirrored test tree, use its matching feature directory. Promote a module when multiple consumers share semantics or one owner must define a persisted contract.
 - Keep files focused — a file that grows past ~300 lines is a signal to split.
 - Avoid circular dependencies between modules; use a clear dependency direction.
 
@@ -85,5 +85,5 @@ Comments explain **why**, never **what**. If code needs a comment to describe wh
 - No global mutable state — pass dependencies explicitly.
 - No emojis in code or comments.
 - Do not write excessive documentation files unless explicitly asked.
-- No `print()` / `console.log()` left in committed code — use proper logging.
+- Use the project logger for diagnostics. A CLI may print its intended output.
 - Prefer pure functions where possible — same inputs always produce same outputs, no side effects.
