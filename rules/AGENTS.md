@@ -33,6 +33,10 @@ For worked examples of naming, comments and helper boundaries, see `~/projects/a
 
 Type function signatures and use NumPy-style docstrings for nontrivial interfaces. When writing Python, see `~/projects/agent-setup/rules/python.md` for conventions and a worked example.
 
+## Commit messages
+
+When making a commit, follow the project's explicit convention. The personal default is Conventional Commits: `type(scope): summary`. Use an optional scope that names the affected area and a concise imperative summary, such as `fix(tmux): restore the git tab on reattach`. Use `feat` for a feature, `fix` for a bug, and types such as `docs`, `test` or `refactor` for those changes. Mark a breaking change with `!` before the colon or a `BREAKING CHANGE:` footer. Explain a consequential reason or migration in the body when useful.
+
 ## Verify the behavior
 
 Start with what the user or caller should observe. Use focused unit tests for calculations, boundary values and error cases that can fail independently. Use a real integration for a storage or service contract. Exercise a critical journey end to end when the failure could be in how its parts connect. Choose the fastest check that can catch that failure. Add another test when it catches a distinct regression. Skip assertions that merely repeat an existing check or pin private helper calls.
