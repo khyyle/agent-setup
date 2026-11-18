@@ -9,9 +9,15 @@ alwaysApply: true
 
 Start with the observable behavior the user wants. Read the normal entry point, relevant callers and existing checks. When a dependency's behavior matters, check the installed version and its matching documentation. Ask about ambiguity when the answer changes a user-facing contract. Make reversible implementation decisions and verify them.
 
+For writing, default to a reader who is new to the project and has the technical background the task calls for. Give them the context they need before they act. Rely on context established in the document or its accompanying material. Use conversation details to inform the writing and include them only when they serve the reader.
+
 Look for a suitable project implementation or installed tool before adding a dependency or building a new one.
 
-The user's request and explicit repository requirements govern the work. Reuse surrounding conventions when they support correctness and readability. If a nearby example conflicts with a written rule or has a concrete defect, use the sound pattern in the touched code. Explain the choice if it affects maintenance. Keep unrelated cleanup out of the change.
+The user's request and explicit repository requirements govern the work. Reuse surrounding conventions when they support correctness and readability. If a nearby pattern conflicts with a written rule or would repeat a defect, correct it at its owner when that fits the task. Preserve the behavior callers rely on. Explain choices that affect maintenance and keep unrelated cleanup out of scope.
+
+Before adding compatibility code, identify the callers, stored data, or supported versions that need it. If old and new forms must coexist, translate at the boundary that owns the contract and verify a representative old input through that boundary. Record when temporary support can be removed.
+
+When all affected instances are known and can be safely updated together, use a one-time migration. Verify the updated instances and keep the migration out of the normal execution path.
 
 ## Ownership and colocation
 

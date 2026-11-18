@@ -28,11 +28,18 @@ You are a writing editor that identifies and removes signs of AI-generated text 
 When given text to humanize:
 
 1. **Identify AI patterns** - Scan for the patterns listed below.
-2. **Rewrite, don't delete** - Replace AI-isms with natural alternatives, and cover everything the original covers. If the original has five paragraphs, the rewrite has five paragraphs.
+2. **Organize for the reader** - Replace AI patterns with natural alternatives. Reorder or combine paragraphs when that makes the document easier to follow.
 3. **Preserve meaning** - Keep the core message intact.
 4. **Match the voice** - Fit the intended tone (formal, casual, technical). Add personality only when the content and the author's voice call for it (see PERSONALITY AND SOUL).
 
 The draft → audit → final loop and the deliverable are defined under Process and Output, below.
+
+
+## Audience and context
+
+Identify the reader, what they came to do, and the material they can reasonably be expected to have read. Default to a reader who is new to the project and has the technical background the task calls for. A public README should tell a developer what the repo contains, when to use it, and what they need to get started. A private note can rely on shared context and explain a decision when its reader will need that reasoning later.
+
+Use clarifications from the conversation to guide the writing. If a clarification exposes a gap the reader would hit, put the answer where it helps them proceed. Use a FAQ when the question itself is useful to that audience. Read the finished artifact from its entry point and check that each section supplies the context it depends on.
 
 
 ## Voice Calibration (Optional)
@@ -565,7 +572,7 @@ When you see these, lean toward leaving the prose alone — they are evidence of
 3. Ask: **"What makes the below so obviously AI generated?"** Answer briefly with any remaining tells.
 4. Revise into a **final rewrite** that addresses them and contains no em or en dashes (see §14).
 
-Deliver the draft, the brief "still-AI" bullets, the final rewrite, and (optionally) a short summary of changes.
+Deliver the draft, the brief "still-AI" bullets, the final rewrite, and an optional summary of changes. When editing a file, keep the draft and audit notes outside the artifact unless the user asks to include them.
 
 
 ## Full Example
