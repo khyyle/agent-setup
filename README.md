@@ -27,7 +27,7 @@ Edit an existing skill in place. For a new one, add `skills/<name>/SKILL.md` wit
 
 Locally authored for this setup: `verify-change`, `exa-axi` and its CLI. `research-loop` was developed in an earlier session and imported. `ponytail`, `ponytail-review` and `context7-mcp` have local edits. The ARIS skill adapts the two previously installed stages and ships the pinned upstream wiki helpers. The Django skill condenses the previously project-local Django patterns, security and test references. Upstream revisions for the tool skills are in [tools/skill-sources.tsv](tools/skill-sources.tsv).
 
-The 14 Cloudflare-distributed skills (including its three Sandbox skills and `web-perf`), seven GitNexus skills, and `search-first` are in the earlier local commit `eb1cebd`. For a project that uses one, retrieve it from that commit. To reactivate one globally, run `git restore --source=eb1cebd -- skills/<name>` with its real name, then run the linker. App-managed plugin skills live outside this collection.
+The active collection includes [web-perf](skills/web-perf/SKILL.md) for browser performance audits and [search-first](skills/search-first/SKILL.md) for checking existing solutions before adding code or dependencies. The other 13 Cloudflare-distributed skills (including the three Sandbox skills) and seven GitNexus skills are available in the earlier local commit `eb1cebd`. To reactivate one globally, run `git restore --source=eb1cebd -- skills/<name>` with its real name, then run the linker. App-managed plugin skills live outside this collection.
 
 ## Install on Apple Silicon macOS
 
