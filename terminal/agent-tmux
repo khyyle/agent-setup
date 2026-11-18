@@ -71,10 +71,7 @@ def main() -> None:
 
     if encore is not None:
         subprocess.run(TMUX + [
-            "if-shell", "-F", "-t", session + ":",
-            "#{&&:#{N/w:encore},#{==:#{N/w:music},0}}",
-            f"rename-window -t {session}:=encore music",
-            ";", "new-window", "-Sd", "-t", session + ":", "-c", cwd,
+            "new-window", "-Sd", "-t", session + ":", "-c", cwd,
             "-n", "music", shlex.quote(os.path.abspath(encore)),
         ], check=True)
 
