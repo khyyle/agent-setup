@@ -12,7 +12,7 @@ import subprocess
 
 SERVER = "agent-setup"
 CONFIG = Path(__file__).resolve().with_name("tmux.conf")
-MUSIC_STATUS = CONFIG.with_name("music-status")
+MUSIC_STATUS = CONFIG.parent.parent / "music-status"
 TMUX = ["tmux", "-L", SERVER, "-f", str(CONFIG)]
 SHELL_AFTER = '; exec "$SHELL" -l'
 

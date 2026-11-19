@@ -1,0 +1,12 @@
+# Show the active Music.app track and local time at the right edge of the top tab row.
+[ui]
+tab_bar_right = [
+  { type = "command", command = "agent-music-status", interval_seconds = 5, timeout_seconds = 2 },
+  { type = "datetime", format = "%H:%M" },
+]
+
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "agent-setup.tabs.open"
+description = "Open main workspace"

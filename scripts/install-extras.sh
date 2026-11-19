@@ -1,5 +1,5 @@
 #!/bin/sh
-# Install optional Pi packages into Pi's user profile and offer Encore for tmux.
+# Install optional Pi packages into Pi's user profile and offer the Encore music player.
 set -eu
 cd "$(dirname "$0")/.."
 

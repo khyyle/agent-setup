@@ -39,7 +39,8 @@ def main() -> None:
             "herdr": ROOT / "tools/bin/herdr",
             "no-mistakes": ROOT / "tools/bin/no-mistakes",
             "exa-axi": ROOT / "tools/exa-axi.mjs",
-            "agent-tmux": ROOT / "terminal/agent-tmux",
+            "agent-tmux": ROOT / "terminal/tmux/agent-tmux",
+            "agent-music-status": ROOT / "terminal/music-status",
         }
     )
 

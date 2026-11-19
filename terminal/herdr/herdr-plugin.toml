@@ -1,0 +1,21 @@
+id = "agent-setup.tabs"
+name = "Starter tabs"
+description = "Open the main workspace with Pi, read-only Codex review, a Git shell, and Encore."
+version = "1.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos"]
+
+[[startup]]
+command = ["python3", "tabs.py"]
+
+[[actions]]
+id = "open"
+title = "Open main workspace"
+contexts = ["workspace"]
+command = ["python3", "tabs.py"]
+
+[[actions]]
+id = "review"
+title = "Open read-only Codex review"
+contexts = ["workspace"]
+command = ["python3", "tabs.py"]
