@@ -16,7 +16,7 @@ To share a skill with one project, give the installer the project's path. This e
 python3 scripts/install-config.py --project /path/to/project --skills search-first
 ```
 
-Use `--all-skills` to install the suggested user collection. It skips the [project-only list](project-only.txt), whose entries you can still install by name. For a client with a different skills directory, pass `--skills-dir DIR` with your selection.
+Use `--all-skills` to copy the full catalog into your user profile. For a client with a different skills directory, pass `--skills-dir DIR` with your selection.
 
 ## Install coding rules
 

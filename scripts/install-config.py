@@ -37,14 +37,7 @@ def plan_install(args: argparse.Namespace) -> tuple[dict[Path, Path], list[Path]
         guide.parent.name: guide.parent
         for guide in (ROOT / "skills").glob("*/SKILL.md")
     }
-    names = set(args.skills or ())
-    if args.all_skills:
-        project_only = set((ROOT / "skills/project-only.txt").read_text().split())
-        if project_only - catalog.keys():
-            raise SystemExit(
-                f"Unknown project-only skill: {', '.join(sorted(project_only - catalog.keys()))}"
-            )
-        names = catalog.keys() - project_only
+    names = catalog.keys() if args.all_skills else set(args.skills or ())
     if names - catalog.keys():
         raise SystemExit(f"Unknown skill: {', '.join(sorted(names - catalog.keys()))}")
 
@@ -213,7 +206,7 @@ def main() -> None:
         "--skills", nargs="+", metavar="SKILL", help="copy named skills"
     )
     selection.add_argument(
-        "--all-skills", action="store_true", help="copy the suggested collection"
+        "--all-skills", action="store_true", help="copy every skill in the catalog"
     )
     rules = parser.add_mutually_exclusive_group()
     rules.add_argument(
