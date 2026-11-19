@@ -58,6 +58,8 @@ Anything else	chore
 
 ## Verify the behavior
 
+When a recurring or consequential correction reveals a stable project constraint, make the intended path the default at the interface that owns it. Use types or scoped lint for structural constraints and regression tests for observable behavior. Make check failures point to the supported path, and show a new check catching the bad case. Use prose for context and decisions that require judgment.
+
 Start with what the user or caller should observe. Use focused unit tests for calculations, boundary values and error cases that can fail independently. Use a real integration for a storage or service contract. Exercise a critical journey end to end when the failure could be in how its parts connect. Choose the fastest check that can catch that failure. Add another test when it catches a distinct regression. Skip assertions that merely repeat an existing check or pin private helper calls.
 
 For example, if a saved preference disappears on reload, change it through the UI, reload, and assert the displayed value. One browser journey covers the save request, storage and reload together when it uses the real local backend. Test a preference's complex validation cases through the validator's public interface. Use repeatable fixtures and independent expected values. When a critical journey repeatedly needs manual setup, give the project one command that sets up its fixture and runs it. Respect project test gates. For test-first work, show the check failing for the expected reason, then passing after the fix.

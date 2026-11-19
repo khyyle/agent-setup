@@ -1,1 +1,5 @@
 search-first
+create-verification-skill
+maintain-verification-skill
+create-formal-verification-skill
+maintain-formal-verification-skill

@@ -15,4 +15,9 @@ django-patterns	affaan-m/ECC	48dafdd288ca415bed92be9fc86580cb742e0363	skills/dja
 search-first	affaan-m/ECC	dc8455dd10edfa44ef438f034ad3321eea99645d	skills/search-first
 context7-mcp	upstash/context7	1c081df0b6919859546d763045322db9f67244e7	skills/context7-mcp
 typescript-coding-standards	affaan-m/ECC	c547823c534d7e163dc6d96cee35009e6425647b	skills/coding-standards
-tdd-workflow	affaan-m/ECC	c547823c534d7e163dc6d96cee35009e6425647b	skills/tdd-workflow
+tdd	cursor/plugins	35a90942a7f02e1ebbc2443643179815f2147954	pstack/skills/tdd
+correct	cursor/plugins	35a90942a7f02e1ebbc2443643179815f2147954	pstack/skills/correct
+create-verification-skill	cursor/plugins	35a90942a7f02e1ebbc2443643179815f2147954	pstack/skills/create-verification-skill
+maintain-verification-skill	cursor/plugins	35a90942a7f02e1ebbc2443643179815f2147954	pstack/skills/maintain-verification-skill
+create-formal-verification-skill	cursor/plugins	35a90942a7f02e1ebbc2443643179815f2147954	pstack/skills/create-formal-verification-skill
+maintain-formal-verification-skill	cursor/plugins	35a90942a7f02e1ebbc2443643179815f2147954	pstack/skills/maintain-formal-verification-skill
